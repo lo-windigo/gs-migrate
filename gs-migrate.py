@@ -96,4 +96,5 @@ for f in jfriends_from:
         #  s/he wants to and then do so.
         if ask_to_connect(f):
             themsg = urlencode( {'status':"follow %s" % aurl} )
-            urllib.request.urlopen(new_instance['api']+'/statuses/update.json?%s' % themsg, '')
+            urllib.request.urlopen(new_instance['api']+'/statuses/update.json',
+                    themsg.encode())
