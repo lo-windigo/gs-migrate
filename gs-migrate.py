@@ -17,9 +17,9 @@
 
 """
 With this Python3 script you can selectively copy your subscriptions from one
-StatusNet [1] instance to another. The script runs in the terminal and does not
+GNUsocial [1] instance to another. The script runs in the terminal and does not
 need any command line parameters. All you need to do is change the credentials
-for the two StatusNet instances (see below) and answer some yes/no questions.
+for the two GNUsocial instances (see below) and answer some yes/no questions.
 
 If you encounter any problems feel free to contact me [2] or patch them by
 yourself.
@@ -29,17 +29,16 @@ Have fun!
 
 [1]  http://status.net
 [2]  tobias.diekershoff~att~gmx.net
-     http://diekershoff.homeunix.net/statusnet/bavatar/
-     http://identi.ca/bavatar
+     http://diekershoff.net
 """
 
-###  identica credentials
-identica = {
+###  Old instance
+old_instance = {
         'user':'USER_HERE',
         'api':'https://PREVIOUS_INSTANCE/api/'
         }
-### main SN installation
-sn = {
+### New GS installation
+new_instance = {
         'user':'NEW_USER',  # your username
         'password':'SUPER_SECRET_PASSWORD',       # your password
         'api':'https://NEW_INSTANCE/api/'         # base api
@@ -65,22 +64,22 @@ def ask_to_connect(friend):
     return yn.upper() == 'Y'
 
 #
-#  fetch the friend lists from the source and the target StatusNet installation
+#  fetch the friend lists from the source and the target GNUsocial installation
 #  for comparison during the subscription process later
 #
-friends_from = urllib.request.urlopen(identica['api']+'/statuses/friends/%s.json' %
-        identica['user']).read().decode('UTF-8')
-friends_there = urllib.request.urlopen(sn['api']+'statuses/friends/%s.json' %
-        sn['user']).read().decode('UTF-8')
+friends_from = urllib.request.urlopen(old_instance['api']+'/statuses/friends/%s.json' %
+        old_instance['user']).read().decode('UTF-8')
+friends_there = urllib.request.urlopen(new_instance['api']+'/statuses/friends/%s.json' %
+        new_instance['user']).read().decode('UTF-8')
 jfriends_from = json.loads( friends_from )
 jfriends_there = json.loads( friends_there )
 
 #
 #  set up the connection at the target installation so that we can post notices
-#  there to subscribe to some accounts at any given StatusNet installation
+#  there to subscribe to some accounts at any given GNUsocial installation
 #
 pwd_mgr = urllib.request.HTTPPasswordMgrWithDefaultRealm()
-pwd_mgr.add_password(None, sn['api'], sn['user'], sn['password'])
+pwd_mgr.add_password(None, new_instance['api'], new_instance['user'], new_instance['password'])
 handler = urllib.request.HTTPBasicAuthHandler(pwd_mgr)
 opener = urllib.request.build_opener(handler)
 urllib.request.install_opener(opener)
@@ -97,4 +96,4 @@ for f in jfriends_from:
         #  s/he wants to and then do so.
         if ask_to_connect(f):
             themsg = urlencode( {'status':"follow %s" % aurl} )
-            urllib.request.urlopen(sn['api']+'/statuses/update.json?%s' % themsg, '')
+            urllib.request.urlopen(new_instance['api']+'/statuses/update.json?%s' % themsg, '')
